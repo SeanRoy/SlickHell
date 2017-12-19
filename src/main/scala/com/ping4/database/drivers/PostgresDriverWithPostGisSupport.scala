@@ -3,30 +3,6 @@ package com.ping4.database.drivers
 import com.github.tminglei.slickpg._
 import slick.basic.Capability
 import slick.driver.JdbcProfile
-/*
-trait PostgresDriverWithPostGisSupport extends ExPostgresProfile
-                                        with PgArraySupport
-                                        with PgHStoreSupport
-                                        with PgSearchSupport
-                                        with PgPostGISSupport {
-
-  override lazy val Implicit = new ImplicitsPlus {}
-  override val simple = new SimpleQLPlus {}
-
-  trait ImplicitsPlus extends api
-                      with ArrayImplicits
-                      with HStoreImplicits
-                      with SearchImplicits
-                      with PostGISImplicits
-
-  trait SimpleQLPlus extends SimpleQL
-                      with ImplicitsPlus
-                      with SearchAssistants
-                      with PostGISAssistants
-}
-
-object PostgresDriverWithPostGisSupport extends PostgresDriverWithPostGisSupport
-*/
 
 trait PostgresDriverWithPostGisSupport extends ExPostgresProfile
   with PgArraySupport

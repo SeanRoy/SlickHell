@@ -2,26 +2,24 @@ package com.ping4.database.tables
 
 import java.sql.Timestamp
 import java.util.UUID
-
 import slick.lifted.Tag
+
+case class User(id: Option[Int], customerId: UUID, var name: String, email: String, encryptedPassword: String,
+                var rolesMask: Option[Int], createdAt: Timestamp, createdBy: Option[Int],
+                var updatedAt: Timestamp, var updatedBy: Option[Int], var deleted: Option[Boolean],
+                var deletedTime: Option[Timestamp], var deletedBy: Option[Int], apiKey: String,
+                var validationKey: Option[String],
+                var validated: Boolean,
+                var validatedAt: Option[Timestamp],
+                var validationSentAt: Option[Timestamp],
+                var enabled: Option[Boolean] = Option(true))
 
 /**
   * @author Sean N. Roy
   */
-trait UsersTable {
   import com.ping4.database.drivers.PostgresDriverWithPostGisSupport.api._
 
-  case class User(id: Option[Int], customerId: UUID, var name: String, email: String, encryptedPassword: String,
-                  var rolesMask: Option[Int], createdAt: Timestamp, createdBy: Option[Int],
-                  var updatedAt: Timestamp, var updatedBy: Option[Int], var deleted: Option[Boolean],
-                  var deletedTime: Option[Timestamp], var deletedBy: Option[Int], apiKey: String,
-                  var validationKey: Option[String],
-                  var validated: Boolean,
-                  var validatedAt: Option[Timestamp],
-                  var validationSentAt: Option[Timestamp],
-                  var enabled: Option[Boolean] = Option(true))
-
-  class Users(tag: Tag) extends Table[User](tag, "Users") {
+  class Users(tag: Tag) extends Table[User](tag, None, "users") {
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
     def customerId = column[UUID]("customer_id")
     def name = column[String]("name")
@@ -46,6 +44,3 @@ trait UsersTable {
       deleted, deletedTime, deletedBy, apiKey, validationKey, validated, validatedAt, validationSentAt, enabled) <> (User.tupled, User.unapply)
   }
 
-  val users = TableQuery[Users]
-
-}

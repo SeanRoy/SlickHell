@@ -5,18 +5,39 @@ import java.util.UUID
 
 /**
   * @author Sean N. Roy
+  * @param oldId
+  * @param name
+  * @param apiKey
+  * @param contactName
+  * @param contactEmail
+  * @param contactPhone
+  * @param createdAt
+  * @param updatedAt
+  * @param deleted
+  * @param deletedTime
+  * @param id
+  * @param settings
+  * @param deletedBy
+  * @param enabled
+  * @param emailDomains
+  * @param pin
   */
-trait CustomersTable extends UsersTable {
+case class Customer(oldId: Int, name: String, apiKey: String, contactName: String, contactEmail: String,
+                    contactPhone: Option[String] = None, createdAt: Timestamp, updatedAt: Timestamp,
+                    deleted: Boolean = false, var deletedTime: Option[Timestamp] = None, id: UUID,
+                    settings: Option[Map[String, String]], var deletedBy: Option[Int] = None, enabled: Boolean = true,
+                    emailDomains: Option[List[String]] = None,
+                    pin: Int = 1 /* TODO UNCOMMENT! com.ping4.models.Customers.generateCustomerPin*/) extends BaseEntity {
+
+}
+
+
+/**
+  * @author Sean N. Roy
+  */
   import com.ping4.database.drivers.PostgresDriverWithPostGisSupport.api._
 
-  case class Customer(oldId: Int, name: String, apiKey: String, contactName: String, contactEmail: String,
-                      contactPhone: Option[String] = None, createdAt: Timestamp, updatedAt: Timestamp,
-                      var deleted: Boolean = false, var deletedTime: Option[Timestamp] = None, id: UUID,
-                      settings: Option[Map[String, String]], var deletedBy: Option[Int] = None, enabled: Boolean = true,
-                      emailDomains: Option[List[String]] = None,
-                      pin: Int = 1 /* TODO UNCOMMENT! com.ping4.models.Customers.generateCustomerPin*/)
-
-  class Customers(tag: Tag) extends Table[Customer](tag, "Customers") {
+  class Customers(tag: Tag) extends BaseTable[Customer](tag, None, "customers") {
     def * = (oldId, name, apiKey, contactName, contactEmail, contactPhone, createdAt, updatedAt, deleted, deletedTime, id, settings, deletedBy, enabled, emailDomains, pin) <> (Customer.tupled, Customer.unapply)
 
     /** Database column old_id DBType(serial), AutoInc */
@@ -36,11 +57,11 @@ trait CustomersTable extends UsersTable {
     /** Database column updated_at DBType(timestamp) */
     val updatedAt: Rep[Timestamp] = column[Timestamp]("updated_at")
     /** Database column deleted DBType(bool), Default(false) */
-    val deleted: Rep[Boolean] = column[Boolean]("deleted", O.Default(false))
+    override val deleted: Rep[Boolean] = column[Boolean]("deleted", O.Default(false))
     /** Database column deleted_time DBType(timestamp), Default(None) */
     val deletedTime: Rep[Option[Timestamp]] = column[Option[Timestamp]]("deleted_time", O.Default(None))
     /** Database column id DBType(uuid), PrimaryKey, Length(2147483647,false) */
-    val id: Rep[UUID] = column[UUID]("id", O.PrimaryKey, O.Length(2147483647,varying=false))
+    override val id: Rep[UUID] = column[UUID]("id", O.PrimaryKey, O.Length(2147483647,varying=false))
     /** Database column settings DBType(hstore), Length(2147483647,false) */
     val settings: Rep[Option[Map[String, String]]] = column[Option[Map[String, String]]]("settings", O.Length(2147483647,varying=false))
     /** Database column deleted_by DBType(int4), Default(None) */
@@ -52,11 +73,9 @@ trait CustomersTable extends UsersTable {
     val pin: Rep[Int] = column[Int]("pin")
 
     /** Foreign key referencing Users (database name customers_deleted_by_fkey) */
-    lazy val usersFk = foreignKey("customers_deleted_by_fkey", deletedBy, users)(r => r.id, onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
+    lazy val usersFk = foreignKey("customers_deleted_by_fkey", deletedBy, TableQuery[Users])(r => r.id, onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
 
     /** Uniqueness Index over (apiKey) (database name customers_api_key_key) */
     val index1 = index("customers_api_key_key", apiKey, unique=true)
   }
 
-  val customers = TableQuery[Customers]
-}
